@@ -1,16 +1,28 @@
-# This is a sample Python script.
+from __future__ import (absolute_import, division, print_function,
+                        unicode_literals)
 
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
-
-
-def print_hi(name):
-    # Use a breakpoint in the code line below to debug your script.
-    print(f'Hi, {name}')  # Press Ctrl+F8 to toggle the breakpoint.
+from run_strategy import Run_strategy
+from dateutil.relativedelta import relativedelta
+from Strategies.bollinger_three import Bollinger_three
+import datetime
 
 
-# Press the green button in the gutter to run the script.
 if __name__ == '__main__':
-    print_hi('PyCharm')
 
-# See PyCharm help at https://www.jetbrains.com/help/pycharm/
+    ticker = "CAN"
+    start_date = datetime.date.today() - relativedelta(days=2)
+
+    # end_date = "2021-09-23"
+    # intervals = {"30m": "2021-09-01", "1h": "2021-08-25", "90m": "2021-08-01", "1d": "2021-06-01"}
+    interval = "1m"
+    strategy = Bollinger_three
+    parameters = dict(cash=10000,
+                      macd1=12,
+                      macd2=26,
+                      macdsig=9,
+                      atrperiod=14,
+                      atrdist=2.0,
+                      order_pct=1.0, )
+
+    run_cerebro = Run_strategy(parameters, strategy)
+    run_cerebro.runstrat(ticker, start_date, interval)
