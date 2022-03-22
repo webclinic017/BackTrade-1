@@ -42,6 +42,7 @@ class Run_strategy:
         percentage = (end_value / start_value - 1) * 100
         print(f"Percentage lost/profited in time period{round(percentage, 3)}%")
         print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
+        return percentage
 
     def runstrat(self, ticker, start_date, interval):
         self.cerebro.broker.set_cash(self.args['cash'])
@@ -49,7 +50,8 @@ class Run_strategy:
             self.add_data(self.cerebro, ticker, start_date, interval)
         self.cerebro.addstrategy(self.strategy, args=self.args)
         self.add_analyzers(self.data)
-        self.print_data()
+        per = self.print_data()
+        return per
         # self.cerebro.plot(style='candlestick')
 
         # self.cerebro.addanalyzer(bt.analyzers.PyFolio, _name='pyfolio')

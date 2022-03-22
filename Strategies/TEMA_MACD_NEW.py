@@ -20,7 +20,6 @@ class TEMA_MACD_NEW(Strategy_skeleton):
         self.tema_close = bt.indicators.TripleExponentialMovingAverage(self.data.close, period=12)
 
         self.tcross = bt.indicators.CrossOver(self.tema_close, self.tema_open)
-
         self.flag_tema = 0
         self.is_tradeable = 0
         self.max_macd = 0
