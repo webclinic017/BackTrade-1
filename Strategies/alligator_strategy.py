@@ -16,6 +16,9 @@ class Alligator_strategy(Strategy_skeleton):
         self.short_position = 0
         self.long_position = 0
 
+    def __str__(self):
+         return self.__class__.__name__
+
     def next(self):
         print(self.datas[0].datetime.date(0))
         print(type(self.datas[0].datetime.date(0)))

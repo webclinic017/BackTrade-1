@@ -29,6 +29,9 @@ class TEMA_MACD_NEW(Strategy_skeleton):
         self.first_cross = 0
         self.year_start = self.datas[0].datetime.date(0) - relativedelta(years=1)
 
+    def __str__(self):
+        return self.__class__.__name__
+
     def next(self):
 
         if self.year_start > self.datas[0].datetime.date(0):

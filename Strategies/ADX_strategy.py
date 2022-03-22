@@ -17,6 +17,9 @@ class adx_strat(Strategy_skeleton):
         self.ma50 = bt.indicators.MovingAverageSimple(period=50)
         self.boll = bt.indicators.BollingerBands(period=14)
 
+    def __str__(self):
+        return self.__class__.__name__
+
     def next(self):
         self.log('Close, %.2f' % self.data[0])
 

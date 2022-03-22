@@ -12,6 +12,10 @@ class Tema20_tema60(Strategy_skeleton):
         self.tema_60 = bt.indicators.TripleExponentialMovingAverage(self.data.close, period=60)
         self.tcross = bt.indicators.CrossOver(self.tema_20, self.tema_60)
         self.tcross_flag = 0
+
+    def __str__(self):
+        return self.__class__.__name__
+
     def next(self):
         print(self.datas[0].datetime.date(0))
         print(type(self.datas[0].datetime.date(0)))

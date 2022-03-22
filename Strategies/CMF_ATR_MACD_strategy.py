@@ -15,18 +15,18 @@ class MACD_CMF_ATR_Strategy(Strategy_skeleton):
         self.stop_loss_short = 0
         self.take_profit_short = 0
         self.is_long, self.is_short = 0, 0
-        self.macd = bt.indicators.MACD(self.data,
-                                       period_me1=self.args.macd1,
-                                       period_me2=self.args.macd2,
-                                       period_signal=self.args.macdsig)
+        self.macd = bt.indicators.MACD(self.data)
         # Cross of macd.macd and macd.signal
         self.mcross = bt.indicators.CrossOver(self.macd.macd, self.macd.signal)
 
         self.mcross_short = bt.indicators.CrossOver(self.macd.signal, self.macd.macd)
 
-        self.atr = bt.indicators.ATR(self.data, period=self.args.atrperiod)
+        self.atr = bt.indicators.ATR(self.data)
 
         self.cmf = CMF(self.data)
+
+    def __str__(self):
+         return self.__class__.__name__
 
     def next(self):
         self.log('Close, %.2f' % self.data[0])
@@ -36,8 +36,7 @@ class MACD_CMF_ATR_Strategy(Strategy_skeleton):
 
         if not self.position:  # not in the market
 
-            amount_to_invest = (self.args.order_pct * self.broker.cash)
-
+            amount_to_invest = 10000
             if self.macd.macd[0] > 0 and self.macd.signal[0] > 0:  # testing long
                 if self.mcross[0] == 1.0 and self.cmf[0] > 0:
                     self.size = math.floor(amount_to_invest / self.data.close)
@@ -46,7 +45,7 @@ class MACD_CMF_ATR_Strategy(Strategy_skeleton):
                     print(" ")
                     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
                     self.log('BUY CREATE (LONG), %.2f ' % self.data[0])
-                    pdist = self.atr[0] * self.args.atrdist
+                    pdist = self.atr[0]
                     self.stop_loss_long = self.data.close[0] - pdist
                     self.take_profit_long = self.data.close[0] + (2 * pdist)
                     self.print_stats()
@@ -59,7 +58,7 @@ class MACD_CMF_ATR_Strategy(Strategy_skeleton):
                     print(" ")
                     print("~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~")
                     self.log('SELL CREATE (SHORT), %.2f ' % self.data[0])
-                    pdist = self.atr[0] * self.args.atrdist
+                    pdist = self.atr[0]
                     self.stop_loss_short = self.data.close[0] + pdist
                     self.take_profit_short = self.data.close[0] - (2 * pdist)
                     self.print_stats()

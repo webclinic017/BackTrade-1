@@ -16,6 +16,9 @@ class Bollinger_three(Strategy_skeleton):
         self.boll3 = bt.indicators.BollingerBands(period=14, devfactor=3.0)
         self.boll2 = bt.indicators.BollingerBands(period=14, devfactor=2.0)
 
+    def __str__(self):
+         return self.__class__.__name__
+
     def next(self):
         self.log('Close, %.2f' % self.data[0])
 
