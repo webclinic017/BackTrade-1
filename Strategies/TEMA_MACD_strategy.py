@@ -20,6 +20,8 @@ class TEMA_MACD_strategy(Strategy_skeleton):
         self.tcross = bt.indicators.CrossOver(self.tema_close, self.tema_open)
         self.flag_macd = 0
         self.flag_tema = 0
+    def __str__(self):
+        return self.__class__.__name__
 
     def next(self):
 

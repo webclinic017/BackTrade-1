@@ -10,10 +10,7 @@ class TEMA_MACD_NEW(Strategy_skeleton):
     def __init__(self, args):
         super(TEMA_MACD_NEW, self).__init__(args)
         self.size = 0
-        self.macd = bt.indicators.MACD(self.data,
-                                       period_me1=self.args['macd1'],
-                                       period_me2=self.args['macd2'],
-                                       period_signal=self.args['macdsig'])
+        self.macd = bt.indicators.MACD(self.data)
         self.mcross = bt.indicators.CrossOver(self.macd.macd, self.macd.signal)
 
         self.tema_open = bt.indicators.TripleExponentialMovingAverage(self.data.open, period=12)
@@ -33,7 +30,6 @@ class TEMA_MACD_NEW(Strategy_skeleton):
         return self.__class__.__name__
 
     def next(self):
-
         if self.year_start > self.datas[0].datetime.date(0):
             if self.macd.macd[0] > self.max_macd:
                 self.max_macd = self.macd.macd[0]
