@@ -1,8 +1,7 @@
 import requests
-import numpy as np
-import pandas_datareader as pdr
-import datetime as dt
 import pandas as pd
+import csv
+from datetime import datetime
 
 
 def get_stock_table(url):
@@ -29,10 +28,14 @@ if __name__ == '__main__':
     # url = r"https://apewisdom.io/"
     flt = "all-stocks"
     pageNbr = "1"
-    table = api_manage(flt,pageNbr)
+    table = api_manage(flt, pageNbr)
     x = table.json()
     df = pd.DataFrame(x['results'])
-    df = df.drop(columns=['name','rank_24h_ago','mentions_24h_ago'])
-    print(df)
-    # df = pd.DataFrame(table.text)
-    # print(df.head())
+    df = df.drop(columns=['name', 'rank_24h_ago', 'mentions_24h_ago'])
+    row = df['ticker'].astype(str) + "-" + df["mentions"]
+    date = datetime.today().strftime('%Y-%m-%d')
+    row = row.tolist()
+    row.insert(0, date)
+    with open(r'ape_wisdom.csv', 'a') as f:
+        writer = csv.writer(f)
+        writer.writerow(row)
