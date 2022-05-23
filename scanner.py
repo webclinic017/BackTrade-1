@@ -4,6 +4,7 @@ import yfinance as yf
 import numpy as np
 import talib
 import pandas as pd
+import otherfunctions as of
 import pandas_ta as ta
 from warnings import simplefilter
 
@@ -16,30 +17,6 @@ vxn = yf.Ticker('^VXN')
 vxn = vxn.history(period="5y")
 candle_names = talib.get_function_groups()['Pattern Recognition']
 
-
-def get_advance_decline_ratio(stocklist):
-    def get_advance_decline_ratio(stocks_dict, df_indexes):
-        ad_ratios = pd.DataFrame(index=df_indexes, columns=['A/D Ratio', 'Advance', 'Decline'])
-
-    advance, decline = 0, 0
-    for stock in stocklist:
-        stock_df = pd.read_csv(f"./stocks/{stock}.csv")
-        stock_df['Change'] = round(stock_df['Close'].pct_change(), 3)
-        decline = (df['Change'] < 0).sum()
-        advance = (df['Change'] > 0).sum()
-    if decline == 0:
-        decline = 0.0000000000001
-
-    return ad_ratios
-
-
-def get_tickers():
-    ticks = []
-    f = open("S&P 500.txt", "r")
-    list_of_tickers = f.read().split(",")
-    for ticker in list_of_tickers:
-        ticks.append(ticker.split(":")[1])
-    return ticks
 
 
 def create_threads(splits):
@@ -107,8 +84,11 @@ def create_csv(ticker):
 
 def main():
     t1 = time.perf_counter()
+    ticker = 'TSLA'
 
-    # tickers = get_tickers()
+    tickers = of.get_tickers()
+    print(of.get_high_corr(ticker, tickers))
+    exit()
     tickers = ['SPY', 'TSLA']
     splits = np.array_split(tickers, 25)
     with concurrent.futures.ProcessPoolExecutor() as executor:
