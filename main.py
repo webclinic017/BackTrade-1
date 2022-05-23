@@ -39,12 +39,9 @@ if __name__ == '__main__':
     t1 = time.perf_counter()
 
     strategies = [Bollinger_three, adx_strat, Alligator_strategy, MACD_CMF_ATR_Strategy, TEMA_MACD_strategy, Tema20_tema60]
-
     tickers = get_df_tickers()
     strategy_list = get_df_strategies(strategies)
-
     df = pd.DataFrame(index=tickers, columns=strategy_list)
-
     start_date = datetime.date.today() - relativedelta(years=3)
     # end_date = "2021-09-23"
     # intervals = {"30m": "2021-09-01", "1h": "2021-08-25", "90m": "2021-08-01", "1d": "2021-06-01"}
@@ -73,7 +70,7 @@ if __name__ == '__main__':
                 print(e)
                 print(ticker)
                 print(get_strategy_name(strategy))
+
     t2 = time.perf_counter()
     print(f'Finished in {t2 - t1} seconds')
-    print(df)
     df.to_csv('results.csv')
