@@ -1,19 +1,19 @@
 import pandas as pd
 
 
-def get_advance_decline_ratio(stocklist):
-    def get_advance_decline_ratio(stocks_dict, df_indexes):
-        ad_ratios = pd.DataFrame(index=df_indexes, columns=['A/D Ratio', 'Advance', 'Decline'])
-    advance, decline = 0, 0
-    for stock in stocklist:
-        stock_df = pd.read_csv(f"./stocks/{stock}.csv")
-        stock_df['Change'] = round(stock_df['Close'].pct_change(), 3)
-        decline = (df['Change'] < 0).sum()
-        advance = (df['Change'] > 0).sum()
-    if decline == 0:
-        decline = 0.0000000000001
-
-    return ad_ratios
+# def get_advance_decline_ratio(stocklist):
+#     def get_advance_decline_ratio(stocks_dict, df_indexes):
+#         ad_ratios = pd.DataFrame(index=df_indexes, columns=['A/D Ratio', 'Advance', 'Decline'])
+#     advance, decline = 0, 0
+#     for stock in stocklist:
+#         stock_df = pd.read_csv(f"./stocks/{stock}.csv")
+#         stock_df['Change'] = round(stock_df['Close'].pct_change(), 3)
+#         decline = (df['Change'] < 0).sum()
+#         advance = (df['Change'] > 0).sum()
+#     if decline == 0:
+#         decline = 0.0000000000001
+#
+#     return ad_ratios
 
 
 def get_high_corr(ticker, tickers):
@@ -37,3 +37,29 @@ def get_tickers():
         ticks.append(ticker.split(":")[1])
     return ticks
 
+
+def creating_dates():
+    tickers = get_tickers()
+    exmpticker = tickers[0]
+    exmp_df = pd.read_csv(f"./stocks/{exmpticker}.csv")
+    dates = exmp_df['Date']
+    columns = exmp_df.columns.values.tolist()
+    columns.insert(0, 'ticker')
+    for date in dates:
+        df = pd.DataFrame(columns=columns, index='ticker')
+        df.to_csv(f"./dates/{date}.csv")
+
+
+def stocks_to_dates():
+    tickers = get_tickers()
+    ex_tick = tickers[0]
+    ex_ticker_df = pd.read_csv(f"./stocks/{ex_tick}.csv")
+    dates = ex_ticker_df['Date']
+    for ticker in tickers:
+        ticker_df = pd.read_csv(f"./stocks/{ticker}.csv")
+        for date in dates:
+            curr_date_df = pd.read_csv(f"./dates/{date}.csv")
+            row = ticker_df.loc[ticker_df['Date'] == date].values[0].tolist()
+            row.insert(0, ticker)
+            print(row)
+            curr_date_df.loc[-1] = row

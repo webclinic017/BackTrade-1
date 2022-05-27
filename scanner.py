@@ -18,7 +18,6 @@ vxn = vxn.history(period="5y")
 candle_names = talib.get_function_groups()['Pattern Recognition']
 
 
-
 def create_threads(splits):
     with concurrent.futures.ThreadPoolExecutor() as executor:
         executor.map(create_csv, splits)
@@ -70,6 +69,8 @@ def add_other(df):
     df['Market Cap'] = df['Open'] * df['Volume']
     df['DPC'] = df['Open'] / df['Open'].shift(1) - 1
     df['Cumulative Return'] = (1 + df['DPC']).cumprod()
+    df['PriceUp'] = np.where(df['DPC'] > 0, 1, 0)
+    df['PriceDown'] = np.where(df['DPC'] < 0, 1, 0)
 
 
 def create_csv(ticker):
@@ -84,15 +85,13 @@ def create_csv(ticker):
 
 def main():
     t1 = time.perf_counter()
-    ticker = 'TSLA'
+    # tickers = of.get_tickers()
 
-    tickers = of.get_tickers()
-    print(of.get_high_corr(ticker, tickers))
-    exit()
     tickers = ['SPY', 'TSLA']
     splits = np.array_split(tickers, 25)
     with concurrent.futures.ProcessPoolExecutor() as executor:
         executor.map(create_threads, splits)
+    of.creating_dates()
     t2 = time.perf_counter()
     print(f'Finished in {t2 - t1} seconds')
 

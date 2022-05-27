@@ -30,6 +30,7 @@ def fix_csv(ticker):
 
 def main():
     t1 = time.perf_counter()
+    tickers = ['AAPL']
     splits = np.array_split(tickers, 25)
     with concurrent.futures.ProcessPoolExecutor() as executor:
         executor.map(create_threads, splits)
