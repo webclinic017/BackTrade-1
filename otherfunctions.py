@@ -1,6 +1,6 @@
 import pandas as pd
 
-
+FILE_PATH = "S&P 500.txt"
 # def get_advance_decline_ratio(stocklist):
 #     def get_advance_decline_ratio(stocks_dict, df_indexes):
 #         ad_ratios = pd.DataFrame(index=df_indexes, columns=['A/D Ratio', 'Advance', 'Decline'])
@@ -31,7 +31,7 @@ def get_high_corr(ticker, tickers):
 
 def get_tickers():
     ticks = []
-    f = open("S&P 500.txt", "r")
+    f = open(FILE_PATH, "r")
     list_of_tickers = f.read().split(",")
     for ticker in list_of_tickers:
         ticks.append(ticker.split(":")[1])
@@ -39,11 +39,6 @@ def get_tickers():
 
 
 def creating_dates():
-    tickers = get_tickers()
-    exmpticker = tickers[0]
-    exmp_df = pd.read_csv(f"./stocks/{exmpticker}.csv")
-    dates = exmp_df['Date']
-    columns = exmp_df.columns.values.tolist()
     columns.remove('Date')
     for date in dates:
         df = pd.DataFrame(columns=columns)
@@ -51,24 +46,26 @@ def creating_dates():
 
 
 def stocks_to_dates():
+    bad_stocks = []
     for index, ticker in enumerate(tickers):
         try:
             print(f"currently at {index + 1} out of 499")
             ticker_df = pd.read_csv(f"./stocks/{ticker}.csv")
             for date in dates:
-                    curr_date_df = pd.read_csv(f"./dates/{date}.csv", index_col=[0])
-                    row = ticker_df.loc[ticker_df['Date'] == date].values[0].tolist()[1:]
-                    curr_date_df.loc[len(curr_date_df.index)] = row
-                    curr_date_df.to_csv(f"./dates/{date}.csv")
+                curr_date_df = pd.read_csv(f"./dates/{date}.csv", index_col=[0])
+                row = ticker_df.loc[ticker_df['Date'] == date].values[0].tolist()[1:]
+                curr_date_df.loc[len(curr_date_df.index)] = row
+                curr_date_df.to_csv(f"./dates/{date}.csv")
         except:
-            print(f"problem with ticker: {ticker} ")
+            bad_stocks.append(ticker)
+    print(bad_stocks)
 
-            
 
 if __name__ == '__main__':
     tickers = get_tickers()
     ex_tick = tickers[0]
     ex_ticker_df = pd.read_csv(f"./stocks/{ex_tick}.csv")
     dates = ex_ticker_df['Date']
+    columns = ex_ticker_df.columns.values.tolist()
     creating_dates()
     stocks_to_dates()

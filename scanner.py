@@ -10,15 +10,21 @@ from warnings import simplefilter
 from os import listdir
 from os.path import isfile, join
 
+
+PERIOD = "5y"
+SPLITS = 25
+
+
 simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
+candle_names = talib.get_function_groups()['Pattern Recognition']
+tickers = of.get_tickers()
+
 vix = yf.Ticker('^VIX')
 vix = vix.history(period="5y")
 vvix = yf.Ticker('^VVIX')
 vvix = vvix.history(period="5y")
 vxn = yf.Ticker('^VXN')
 vxn = vxn.history(period="5y")
-candle_names = talib.get_function_groups()['Pattern Recognition']
-tickers = of.get_tickers()
 
 
 def add_candles(df):
@@ -88,9 +94,8 @@ def create_threads(splits):
 
 
 def create_csv(ticker):
-    # print(f" now creating {ticker} csv")
     stock = yf.Ticker(ticker)
-    df = stock.history(period="5y")
+    df = stock.history(period=PERIOD)
     df = df.drop(columns=['Stock Splits'])
     df.insert(0, 'ticker', ticker)
     try:
@@ -99,14 +104,12 @@ def create_csv(ticker):
         add_other(df)
         df.to_csv(f"./stocks/{ticker}.csv")
     except:
-        print(ticker)
+        print(f"error while creating ticker: {ticker} file")
 
 
 def main():
     t1 = time.perf_counter()
-    print(tickers)
-
-    splits = np.array_split(tickers, 25)
+    splits = np.array_split(tickers, SPLITS)
     with concurrent.futures.ProcessPoolExecutor() as executor:
         executor.map(create_threads, splits)
     t2 = time.perf_counter()
