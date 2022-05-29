@@ -44,22 +44,31 @@ def creating_dates():
     exmp_df = pd.read_csv(f"./stocks/{exmpticker}.csv")
     dates = exmp_df['Date']
     columns = exmp_df.columns.values.tolist()
-    columns.insert(0, 'ticker')
+    columns.remove('Date')
     for date in dates:
-        df = pd.DataFrame(columns=columns, index='ticker')
+        df = pd.DataFrame(columns=columns)
         df.to_csv(f"./dates/{date}.csv")
 
 
 def stocks_to_dates():
+    for index, ticker in enumerate(tickers):
+        try:
+            print(f"currently at {index + 1} out of 499")
+            ticker_df = pd.read_csv(f"./stocks/{ticker}.csv")
+            for date in dates:
+                    curr_date_df = pd.read_csv(f"./dates/{date}.csv", index_col=[0])
+                    row = ticker_df.loc[ticker_df['Date'] == date].values[0].tolist()[1:]
+                    curr_date_df.loc[len(curr_date_df.index)] = row
+                    curr_date_df.to_csv(f"./dates/{date}.csv")
+        except:
+            print(f"problem with ticker: {ticker} ")
+
+            
+
+if __name__ == '__main__':
     tickers = get_tickers()
     ex_tick = tickers[0]
     ex_ticker_df = pd.read_csv(f"./stocks/{ex_tick}.csv")
     dates = ex_ticker_df['Date']
-    for ticker in tickers:
-        ticker_df = pd.read_csv(f"./stocks/{ticker}.csv")
-        for date in dates:
-            curr_date_df = pd.read_csv(f"./dates/{date}.csv")
-            row = ticker_df.loc[ticker_df['Date'] == date].values[0].tolist()
-            row.insert(0, ticker)
-            print(row)
-            curr_date_df.loc[-1] = row
+    creating_dates()
+    stocks_to_dates()
