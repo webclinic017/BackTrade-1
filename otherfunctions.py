@@ -1,22 +1,52 @@
 import pandas as pd
+import yfinance as yf
+import time
+import pandas_ta as ta
 
-FILE_PATH = "S&P 500.txt"
-# def get_advance_decline_ratio(stocklist):
-#     def get_advance_decline_ratio(stocks_dict, df_indexes):
-#         ad_ratios = pd.DataFrame(index=df_indexes, columns=['A/D Ratio', 'Advance', 'Decline'])
-#     advance, decline = 0, 0
-#     for stock in stocklist:
-#         stock_df = pd.read_csv(f"./stocks/{stock}.csv")
-#         stock_df['Change'] = round(stock_df['Close'].pct_change(), 3)
-#         decline = (df['Change'] < 0).sum()
-#         advance = (df['Change'] > 0).sum()
-#     if decline == 0:
-#         decline = 0.0000000000001
-#
-#     return ad_ratios
+FILE_PATH = "Stocks in the SP 500 Index.csv"
+SP500TICKER = "^GSPC"
+PERIOD = "2y"
 
 
-def get_high_corr(ticker, tickers):
+def get_advance_decline_ratio():
+    adr, add = [], []
+    for date in dates:
+        date_df = pd.read_csv(f"./dates/{date}.csv")
+        advance = (date_df['PriceUp'] == 1).sum()
+        decline = (date_df['PriceDown'] == 1).sum()
+        if decline == 0:
+            decline = 0.0000000000001
+        ad_ratio = advance / decline
+        ad_difference = advance - decline
+        date_df['AD_difference'] = ad_difference
+        date_df['AD_RATIO'] = ad_ratio
+        date_df.to_csv(f"./dates/{date}.csv")
+        add.append(ad_difference)
+        adr.append(ad_ratio)
+    df_sp = create_Sp500()
+    df_sp['AD_difference'] = add
+    df_sp['AD_ratio'] = adr
+    df_sp.to_csv(FILE_PATH)
+
+
+def calc_mcllen():
+    df = pd.read_csv(FILE_PATH)
+    add = df['AD_difference']
+    ema19 = ta.ema((add * 0.1), 19)
+    ema39 = ta.ema((add * 0.05), 39)
+    df['mcclellanOSC'] = ema19 - ema39
+    df['mcclellanSUM'] = df['mcclellanOSC'].cumprod()
+    df.to_csv(FILE_PATH)
+
+
+def create_Sp500():
+    stock = yf.Ticker(SP500TICKER)
+    SP_df = stock.history(period=PERIOD)
+    SP_df.to_csv(f"S&P500.csv")
+    return SP_df
+
+
+def get_high_corr(ticker):
     req_df = pd.read_csv(f"./stocks/{ticker}.csv")
     req_close = req_df['Close']
     corr = []
@@ -29,13 +59,24 @@ def get_high_corr(ticker, tickers):
     return [x[1] for x in top3]
 
 
+def get_dates():
+    ex_tick = tickers[0]
+    ex_ticker_df = pd.read_csv(f"./stocks/{ex_tick}.csv")
+    dates_list = ex_ticker_df['Date']
+    return dates_list
+
+
 def get_tickers():
-    ticks = []
-    f = open(FILE_PATH, "r")
-    list_of_tickers = f.read().split(",")
-    for ticker in list_of_tickers:
-        ticks.append(ticker.split(":")[1])
+    sandp500 = pd.read_csv(FILE_PATH)
+    ticks = sandp500['Symbol']
     return ticks
+
+
+def get_columns():
+    ex_tick = tickers[0]
+    ex_ticker_df = pd.read_csv(f"./stocks/{ex_tick}.csv")
+    columns_list = ex_ticker_df.columns.values.tolist()
+    return columns_list
 
 
 def creating_dates():
@@ -62,10 +103,13 @@ def stocks_to_dates():
 
 
 if __name__ == '__main__':
+    t1 = time.perf_counter()
     tickers = get_tickers()
-    ex_tick = tickers[0]
-    ex_ticker_df = pd.read_csv(f"./stocks/{ex_tick}.csv")
-    dates = ex_ticker_df['Date']
-    columns = ex_ticker_df.columns.values.tolist()
-    creating_dates()
-    stocks_to_dates()
+    dates = get_dates()
+    columns = get_columns()
+    # creating_dates()
+    # stocks_to_dates()
+    get_advance_decline_ratio()
+    calc_mcllen()
+    t2 = time.perf_counter()
+    print(f'Finished in {t2 - t1} seconds')

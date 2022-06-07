@@ -10,10 +10,8 @@ from warnings import simplefilter
 from os import listdir
 from os.path import isfile, join
 
-
-PERIOD = "5y"
+PERIOD = "2y"
 SPLITS = 25
-
 
 simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
 candle_names = talib.get_function_groups()['Pattern Recognition']
@@ -46,23 +44,23 @@ def add_indicators(df):
     df['ULTOSC'] = talib.ULTOSC(df['High'], df['Low'], df['Close'], timeperiod1=7, timeperiod2=14, timeperiod3=28)
     df['MACD'], df['MACDSIG'], df[' MACDHIST'] = talib.MACD(df['Close'], fastperiod=12, slowperiod=26, signalperiod=9)
     df['TRANGE'] = talib.TRANGE(df['High'], df['Low'], df['Close'])
-
-    indicators = [df.ta.ao(), df.ta.apo(), df.ta.bias(), df.ta.bop(), df.ta.cci(), df.ta.cfo(), df.ta.cg(), df.ta.cmo(),
+    df['BBupperband'], df['BBmiddleband'], df['BBlowerband'] = talib.BBANDS(df['Close'], timeperiod=5, nbdevup=2,
+                                                                            nbdevdn=2, matype=0)
+    indicators = [df.ta.ao(), df.ta.apo(), df.ta.bias(), df.ta.bop(), df.ta.cci(), df.ta.cfo(), df.ta.cmo(),
                   df.ta.coppock(), df.ta.cti(), df.ta.inertia(), df.ta.mom(), df.ta.pgo(), df.ta.psl(), df.ta.roc(),
-                  df.ta.rsi(), df.ta.rsx(), df.ta.slope(), df.ta.uo(), df.ta.willr(), df.ta.alma(), df.ta.dema(),
+                  df.ta.rsi(), df.ta.rsx(), df.ta.willr(), df.ta.alma(), df.ta.dema(),
                   df.ta.wma(), df.ta.fwma(), df.ta.hma(), df.ta.hwma(), df.ta.jma(), df.ta.kama(),
-                  df.ta.mcgd(), df.ta.pwma(), df.ta.rma(), df.ta.sinwma(), df.ta.swma(), df.ta.t3(),
+                  df.ta.mcgd(), df.ta.pwma(), df.ta.sinwma(), df.ta.swma(), df.ta.t3(),
                   df.ta.tema(), df.ta.trima(), df.ta.vidya(), df.ta.vwma(), df.ta.zlma(), df.ta.chop(),
-                  df.ta.increasing(), df.ta.qstick(), df.ta.ttm_trend(), df.ta.vhf(), df.ta.atr(),
-                  df.ta.massi(), df.ta.pdist(), df.ta.rvi(),
-                  df.ta.true_range(), df.ta.ui(), df.ta.ad(), df.ta.adosc(),
-                  df.ta.cmf(), df.ta.efi(), df.ta.mfi(), df.ta.obv(), df.ta.pvol(), df.ta.pvr(), df.ta.pvt(),
+                  df.ta.increasing(), df.ta.decreasing(), df.ta.qstick(), df.ta.ttm_trend(), df.ta.vhf(), df.ta.atr(),
+                  df.ta.massi(), df.ta.pdist(), df.ta.rvi(),  df.ta.ui(), df.ta.ad(), df.ta.adosc(),
+                  df.ta.cmf(), df.ta.efi(), df.ta.mfi(), df.ta.obv(),  df.ta.pvr(), df.ta.pvt(),
                   df.ta.ebsw()]
-    names = ['ao', 'apo', 'bias', 'bop', 'cci', 'cfo', 'cg', 'cmo', 'coppock', 'cti', 'inertia', 'mom', 'pgo', 'psl',
-             'roc', 'rsi', 'rsx', 'slope', 'uo', 'willr', 'alma', 'dema', 'wma', 'fwma', 'hma', 'hwma', 'jma', 'kama',
-             'mcgd', 'pwma', 'rma', 'sinwma', 'swma', 't3', 'tema', 'trima', 'vidya', 'vwma', 'zlma', 'chop',
-             'increasing', 'qstick', 'ttm_trend', 'vhf', 'atr', 'massi', 'pdist', 'rvi', 'true_range', 'ui',
-             'ad', 'adosc', 'cmf', 'efi', 'mfi', 'obv', 'pvol', 'pvr', 'pvt', 'ebsw']
+    names = ['ao', 'apo', 'bias', 'bop', 'cci', 'cfo', 'cmo', 'coppock', 'cti', 'inertia', 'mom', 'pgo', 'psl',
+             'roc', 'rsi', 'rsx', 'willr', 'alma', 'dema', 'wma', 'fwma', 'hma', 'hwma', 'jma', 'kama',
+             'mcgd', 'pwma', 'sinwma', 'swma', 't3', 'tema', 'trima', 'vidya', 'vwma', 'zlma', 'chop',
+             'increasing', 'decreasing' 'qstick', 'ttm_trend', 'vhf', 'atr', 'massi', 'pdist', 'rvi',
+             'ui','ad', 'adosc', 'cmf', 'efi', 'mfi', 'obv',  'pvr', 'pvt', 'ebsw']
 
     for name, indicator in zip(names, indicators):
         try:
@@ -82,10 +80,10 @@ def add_other(df):
     df['PriceDown'] = np.where(df['DPC'] < 0, 1, 0)
 
 
-def scann():
+def check_data():
     onlyfiles = [f for f in listdir("./stocks/") if isfile(join("./stocks/", f))]
     print(len(onlyfiles))
-    print(tickers)
+    print(len(tickers))
 
 
 def create_threads(splits):
@@ -98,13 +96,10 @@ def create_csv(ticker):
     df = stock.history(period=PERIOD)
     df = df.drop(columns=['Stock Splits'])
     df.insert(0, 'ticker', ticker)
-    try:
-        add_candles(df)
-        add_indicators(df)
-        add_other(df)
-        df.to_csv(f"./stocks/{ticker}.csv")
-    except:
-        print(f"error while creating ticker: {ticker} file")
+    add_candles(df)
+    add_indicators(df)
+    add_other(df)
+    df.to_csv(f"./stocks/{ticker}.csv")
 
 
 def main():
