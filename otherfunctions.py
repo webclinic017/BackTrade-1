@@ -8,6 +8,7 @@ SP500TICKER = "^GSPC"
 PERIOD = "2y"
 
 
+
 def get_advance_decline_ratio():
     adr, add = [], []
     for date in dates:
