@@ -3,10 +3,10 @@ import yfinance as yf
 import time
 import pandas_ta as ta
 
-FILE_PATH = "Stocks in the SP 500 Index.csv"
+STOCKSCSV = "Stocks in the SP 500 Index.csv"
 SP500TICKER = "^GSPC"
-PERIOD = "2y"
-
+PERIOD = "3y"
+SNPPATH = "S&P500.csv"
 
 
 def get_advance_decline_ratio():
@@ -24,27 +24,21 @@ def get_advance_decline_ratio():
         date_df.to_csv(f"./dates/{date}.csv")
         add.append(ad_difference)
         adr.append(ad_ratio)
-    df_sp = create_Sp500()
     df_sp['AD_difference'] = add
     df_sp['AD_ratio'] = adr
-    df_sp.to_csv(FILE_PATH)
+    print(df_sp)
+    df_sp.to_csv(SNPPATH)
 
 
 def calc_mcllen():
-    df = pd.read_csv(FILE_PATH)
+    df = pd.read_csv(SNPPATH)
     add = df['AD_difference']
     ema19 = ta.ema((add * 0.1), 19)
     ema39 = ta.ema((add * 0.05), 39)
     df['mcclellanOSC'] = ema19 - ema39
     df['mcclellanSUM'] = df['mcclellanOSC'].cumprod()
-    df.to_csv(FILE_PATH)
-
-
-def create_Sp500():
-    stock = yf.Ticker(SP500TICKER)
-    SP_df = stock.history(period=PERIOD)
-    SP_df.to_csv(f"S&P500.csv")
-    return SP_df
+    print(df_sp)
+    df.to_csv(SNPPATH)
 
 
 def get_high_corr(ticker):
@@ -67,8 +61,16 @@ def get_dates():
     return dates_list
 
 
+def create_Sp500():
+    stock = yf.Ticker(SP500TICKER)
+    df_sp = stock.history(period=PERIOD)
+    df_sp = df_sp.drop(columns = ['Dividends', 'Stock Splits'])
+    df_sp.to_csv(f"S&P500.csv")
+    return df_sp
+
+
 def get_tickers():
-    sandp500 = pd.read_csv(FILE_PATH)
+    sandp500 = pd.read_csv(STOCKSCSV)
     ticks = sandp500['Symbol']
     return ticks
 
@@ -105,11 +107,12 @@ def stocks_to_dates():
 
 if __name__ == '__main__':
     t1 = time.perf_counter()
+    df_sp = create_Sp500()
     tickers = get_tickers()
     dates = get_dates()
     columns = get_columns()
-    # creating_dates()
-    # stocks_to_dates()
+    creating_dates()
+    stocks_to_dates()
     get_advance_decline_ratio()
     calc_mcllen()
     t2 = time.perf_counter()
