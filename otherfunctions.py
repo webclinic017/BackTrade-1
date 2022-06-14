@@ -3,6 +3,9 @@ import yfinance as yf
 import time
 import pandas_ta as ta
 
+START = "2019-06-02"
+END = "2022-06-02"
+INTERVAL = '1d'
 STOCKSCSV = "Stocks in the SP 500 Index.csv"
 SP500TICKER = "^GSPC"
 PERIOD = "3y"
@@ -30,7 +33,7 @@ def get_advance_decline_ratio():
     df_sp.to_csv(SNPPATH)
 
 
-def calc_mcllen():
+def calc_mcclellan():
     df = pd.read_csv(SNPPATH)
     add = df['AD_difference']
     ema19 = ta.ema((add * 0.1), 19)
@@ -63,7 +66,7 @@ def get_dates():
 
 def create_Sp500():
     stock = yf.Ticker(SP500TICKER)
-    df_sp = stock.history(period=PERIOD)
+    df_sp = stock.history(start=START, end=END, interval=INTERVAL)
     df_sp = df_sp.drop(columns = ['Dividends', 'Stock Splits'])
     df_sp.to_csv(f"S&P500.csv")
     return df_sp
@@ -93,7 +96,7 @@ def stocks_to_dates():
     bad_stocks = []
     for index, ticker in enumerate(tickers):
         try:
-            print(f"currently at {index + 1} out of 499")
+            print(f"currently at {index + 1} out of {len(tickers)}")
             ticker_df = pd.read_csv(f"./stocks/{ticker}.csv")
             for date in dates:
                 curr_date_df = pd.read_csv(f"./dates/{date}.csv", index_col=[0])
@@ -111,9 +114,9 @@ if __name__ == '__main__':
     tickers = get_tickers()
     dates = get_dates()
     columns = get_columns()
-    creating_dates()
-    stocks_to_dates()
+    # creating_dates()
+    # stocks_to_dates()
     get_advance_decline_ratio()
-    calc_mcllen()
+    calc_mcclellan()
     t2 = time.perf_counter()
     print(f'Finished in {t2 - t1} seconds')

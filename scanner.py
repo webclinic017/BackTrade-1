@@ -10,8 +10,10 @@ from warnings import simplefilter
 from os import listdir
 from os.path import isfile, join
 
-
-PERIOD = "2y"
+START = "2019-05-01"
+END = "2022-05-01"
+INTERVAL = '1d'
+PERIOD = "3y"
 SPLITS = 25
 
 simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
@@ -19,11 +21,11 @@ candle_names = talib.get_function_groups()['Pattern Recognition']
 tickers = of.get_tickers()
 
 vix = yf.Ticker('^VIX')
-vix = vix.history(period="5y")
+vix = vix.history(start=START, end=END, interval=INTERVAL)
 vvix = yf.Ticker('^VVIX')
-vvix = vvix.history(period="5y")
+vvix = vvix.history(start=START, end=END, interval=INTERVAL)
 vxn = yf.Ticker('^VXN')
-vxn = vxn.history(period="5y")
+vxn = vxn.history(start=START, end=END, interval=INTERVAL)
 
 
 def add_candles(df):
@@ -54,14 +56,14 @@ def add_indicators(df):
                   df.ta.mcgd(), df.ta.pwma(), df.ta.sinwma(), df.ta.swma(), df.ta.t3(),
                   df.ta.tema(), df.ta.trima(), df.ta.vidya(), df.ta.vwma(), df.ta.zlma(), df.ta.chop(),
                   df.ta.increasing(), df.ta.decreasing(), df.ta.qstick(), df.ta.ttm_trend(), df.ta.vhf(), df.ta.atr(),
-                  df.ta.massi(), df.ta.pdist(), df.ta.rvi(),  df.ta.ui(), df.ta.ad(), df.ta.adosc(),
-                  df.ta.cmf(), df.ta.efi(), df.ta.mfi(), df.ta.obv(),  df.ta.pvr(), df.ta.pvt(),
+                  df.ta.massi(), df.ta.pdist(), df.ta.rvi(), df.ta.ui(), df.ta.ad(), df.ta.adosc(),
+                  df.ta.cmf(), df.ta.efi(), df.ta.mfi(), df.ta.obv(), df.ta.pvr(), df.ta.pvt(),
                   df.ta.ebsw()]
     names = ['ao', 'apo', 'bias', 'bop', 'cci', 'cfo', 'cmo', 'coppock', 'cti', 'inertia', 'mom', 'pgo', 'psl',
              'roc', 'rsi', 'rsx', 'willr', 'alma', 'dema', 'wma', 'fwma', 'hma', 'hwma', 'jma', 'kama',
              'mcgd', 'pwma', 'sinwma', 'swma', 't3', 'tema', 'trima', 'vidya', 'vwma', 'zlma', 'chop',
              'increasing', 'decreasing' 'qstick', 'ttm_trend', 'vhf', 'atr', 'massi', 'pdist', 'rvi',
-             'ui','ad', 'adosc', 'cmf', 'efi', 'mfi', 'obv',  'pvr', 'pvt', 'ebsw']
+             'ui', 'ad', 'adosc', 'cmf', 'efi', 'mfi', 'obv', 'pvr', 'pvt', 'ebsw']
 
     for name, indicator in zip(names, indicators):
         try:
@@ -94,7 +96,7 @@ def create_threads(splits):
 
 def create_csv(ticker):
     stock = yf.Ticker(ticker)
-    df = stock.history(period=PERIOD)
+    df = stock.history(start=START, end=END, interval=INTERVAL, prepost=False)
     df = df.drop(columns=['Stock Splits'])
     df.insert(0, 'ticker', ticker)
     add_candles(df)
