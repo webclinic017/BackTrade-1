@@ -3,8 +3,9 @@ import yfinance as yf
 import time
 import pandas_ta as ta
 
-START = "2019-06-02"
-END = "2022-06-02"
+
+START = "2019-05-01"
+END = "2022-05-01"
 INTERVAL = '1d'
 STOCKSCSV = "Stocks in the SP 500 Index.csv"
 SP500TICKER = "^GSPC"
@@ -29,19 +30,25 @@ def get_advance_decline_ratio():
         adr.append(ad_ratio)
     df_sp['AD_difference'] = add
     df_sp['AD_ratio'] = adr
-    print(df_sp)
     df_sp.to_csv(SNPPATH)
 
 
 def calc_mcclellan():
-    df = pd.read_csv(SNPPATH)
+    df = pd.read_csv(SNPPATH, index_col=[0])
     add = df['AD_difference']
     ema19 = ta.ema((add * 0.1), 19)
     ema39 = ta.ema((add * 0.05), 39)
-    df['mcclellanOSC'] = ema19 - ema39
-    df['mcclellanSUM'] = df['mcclellanOSC'].cumprod()
-    print(df_sp)
+    mcclellanosc = ema19 - ema39
+    df['mcclellanOSC'] = mcclellanosc
+    mcclellansum = mcclellanosc.cumsum()
+    df['mcclellanSUM'] = mcclellansum
     df.to_csv(SNPPATH)
+    for index, date in enumerate(dates):
+        if index >= 38:
+            curr_df = pd.read_csv(f"./dates/{date}.csv")
+            curr_df['mcclellanSUM'] = mcclellansum[index]
+            curr_df['mcclellanOSC'] = mcclellanosc[index]
+            curr_df.to_csv(f"./dates/{date}.csv")
 
 
 def get_high_corr(ticker):
@@ -67,7 +74,7 @@ def get_dates():
 def create_Sp500():
     stock = yf.Ticker(SP500TICKER)
     df_sp = stock.history(start=START, end=END, interval=INTERVAL)
-    df_sp = df_sp.drop(columns = ['Dividends', 'Stock Splits'])
+    df_sp = df_sp.drop(columns=['Dividends', 'Stock Splits'])
     df_sp.to_csv(f"S&P500.csv")
     return df_sp
 
@@ -110,13 +117,14 @@ def stocks_to_dates():
 
 if __name__ == '__main__':
     t1 = time.perf_counter()
-    df_sp = create_Sp500()
+    # df_sp = create_Sp500()
+    df_sp = pd.read_csv(SNPPATH)
     tickers = get_tickers()
     dates = get_dates()
     columns = get_columns()
     # creating_dates()
     # stocks_to_dates()
-    get_advance_decline_ratio()
+    # get_advance_decline_ratio()
     calc_mcclellan()
     t2 = time.perf_counter()
     print(f'Finished in {t2 - t1} seconds')
