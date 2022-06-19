@@ -2,7 +2,7 @@ import pandas as pd
 import yfinance as yf
 import time
 import pandas_ta as ta
-
+import glob
 
 START = "2019-05-01"
 END = "2022-05-01"
@@ -11,6 +11,14 @@ STOCKSCSV = "Stocks in the SP 500 Index.csv"
 SP500TICKER = "^GSPC"
 PERIOD = "3y"
 SNPPATH = "S&P500.csv"
+path = "c:/users/roeym/desktop/backtrade/dates/*.csv"
+
+
+def clear_unnamed():
+    for date in dates:
+        df = pd.read_csv(f"./dates/{date}.csv")
+        df = df.loc[:, ~df.columns.str.contains('^Unnamed')]
+        df.to_csv(f"./dates/{date}.csv")
 
 
 def get_advance_decline_ratio():
@@ -64,7 +72,7 @@ def get_high_corr(ticker):
     return [x[1] for x in top3]
 
 
-def get_dates():
+def get_dates(tickers):
     ex_tick = tickers[0]
     ex_ticker_df = pd.read_csv(f"./stocks/{ex_tick}.csv")
     dates_list = ex_ticker_df['Date']
@@ -120,11 +128,11 @@ if __name__ == '__main__':
     # df_sp = create_Sp500()
     df_sp = pd.read_csv(SNPPATH)
     tickers = get_tickers()
-    dates = get_dates()
+    dates = get_dates(tickers)
     columns = get_columns()
-    # creating_dates()
-    # stocks_to_dates()
-    # get_advance_decline_ratio()
+    creating_dates()
+    stocks_to_dates()
+    get_advance_decline_ratio()
     calc_mcclellan()
     t2 = time.perf_counter()
     print(f'Finished in {t2 - t1} seconds')
