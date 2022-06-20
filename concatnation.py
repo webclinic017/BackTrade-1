@@ -6,7 +6,7 @@ import numpy as np
 
 
 def concatnate_date():
-    for index, date in enumerate(dates):
+    for index, date in enumerate(reversed(dates)):
         print(f"currently at {index + 1} out of {len(dates)}")
         df = pd.read_csv(f"./dates/{date}.csv")
 
@@ -18,6 +18,6 @@ if __name__ == '__main__':
     t1 = time.perf_counter()
     tickers = of.get_tickers()
     dates = of.get_dates(tickers)
-
+    concatnate_date()
     t2 = time.perf_counter()
     print(f'Finished in {t2 - t1} seconds')
