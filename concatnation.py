@@ -8,10 +8,9 @@ import numpy as np
 def concatnate_date():
     for index, date in enumerate(reversed(dates)):
         print(f"currently at {index + 1} out of {len(dates)}")
-        df = pd.read_csv(f"./dates/{date}.csv")
-
-        df.to_csv(f"./dates/{date}.csv")
-
+        # df = pd.read_csv(f"./dates/{date}.csv")
+        #
+        # df.to_csv(f"./dates/{date}.csv")
 
 
 if __name__ == '__main__':
