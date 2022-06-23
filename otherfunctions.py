@@ -93,7 +93,7 @@ def get_tickers():
     return ticks
 
 
-def get_columns():
+def get_columns(tickers):
     ex_tick = tickers[0]
     ex_ticker_df = pd.read_csv(f"./stocks/{ex_tick}.csv")
     columns_list = ex_ticker_df.columns.values.tolist()
@@ -129,7 +129,7 @@ if __name__ == '__main__':
     df_sp = pd.read_csv(SNPPATH)
     tickers = get_tickers()
     dates = get_dates(tickers)
-    columns = get_columns()
+    columns = get_columns(tickers)
     creating_dates()
     stocks_to_dates()
     get_advance_decline_ratio()

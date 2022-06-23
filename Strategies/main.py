@@ -1,13 +1,12 @@
 from __future__ import (absolute_import, division, print_function,
                         unicode_literals)
 
-from run_strategy import Run_strategy
+from Strategies.run_strategy import Run_strategy
 from dateutil.relativedelta import relativedelta
 from Strategies.bollinger_three import Bollinger_three
 from Strategies.ADX_strategy import adx_strat
 from Strategies.alligator_strategy import Alligator_strategy
 from Strategies.CMF_ATR_MACD_strategy import MACD_CMF_ATR_Strategy
-from Strategies.TEMA_MACD_NEW import TEMA_MACD_NEW
 from Strategies.TEMA_MACD_strategy import TEMA_MACD_strategy
 from Strategies.temea20_tema60 import Tema20_tema60
 import datetime

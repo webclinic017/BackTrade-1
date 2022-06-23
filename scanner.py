@@ -18,7 +18,7 @@ SPLITS = 25
 
 simplefilter(action="ignore", category=pd.errors.PerformanceWarning)
 candle_names = talib.get_function_groups()['Pattern Recognition']
-tickers = ['A']#of.get_tickers()
+tickers = of.get_tickers()
 
 vix = yf.Ticker('^VIX')
 vix = vix.history(start=START, end=END, interval=INTERVAL)
